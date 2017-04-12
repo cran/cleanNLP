@@ -14,7 +14,7 @@ Returns an object of class \code{c("tbl_df", "tbl", "data.frame")}
  containing one row for every token in the corpus. The root of each
  sentence is included as its own token.
 
- The returned data frame includes the following columns:
+ The returned data frame includes at a minimum the following columns:
 
 \itemize{
  \item{"id"}{ - integer. Id of the source document.}
@@ -24,10 +24,7 @@ Returns an object of class \code{c("tbl_df", "tbl", "data.frame")}
  \item{"lemma"}{ - character. Lemmatized form the token.}
  \item{"upos"}{ - character. Universal part of speech code.}
  \item{"pos"}{ - character. Language-specific part of speech code; uses the Penn Treebank codes.}
- \item{"speaker"}{ - character. Identity of the speaker, with \code{PER0} denoting the narratorial voice.}
- \item{"wiki"}{ - character. Link to Wikipedia entity.}
  \item{"cid"}{ - integer. Character offset at the start of the word in the original document.}
- \item{"cid_end"}{ - integer. Character offset pointing one past the character at the end of the word.}
 }
 }
 \description{
@@ -46,9 +43,6 @@ get_token(obama) \%>\%
   summarize(sentence_length = max(tid)) \%>\%
   summarize(avg_sentence_length = mean(sentence_length))
 }
-\author{
-Taylor B. Arnold, \email{taylor.arnold@acm.org}
-}
 \references{
 Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel, Steven J. Bethard, and
   David McClosky. 2014. \href{http://nlp.stanford.edu/pubs/StanfordCoreNlp2014.pdf}{The Stanford CoreNLP Natural Language Processing Toolkit}.
@@ -60,4 +54,6 @@ Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel, Steven J. Bet
   Kristina Toutanova, Dan Klein, Christopher Manning, and Yoram Singer. 2003. Feature-Rich Part-of-Speech Tagging with a Cyclic Dependency Network.
   In: \emph{Proceedings of HLT-NAACL 2003, pp. 252-259.}
 }
-
+\author{
+Taylor B. Arnold, \email{taylor.arnold@acm.org}
+}
