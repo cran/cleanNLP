@@ -220,7 +220,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul>
 <p>Links back into the token table for the start, end and head of the mention are given as well; these are pushed to the right of the table as they should be considered foreign keys within this table.</p>
 <p>An example helps to explain exactly what the coreference table represents (the first row is removed as its mention is quite long and makes the table hard to read):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_coreference</span>(obama)[-<span class="dv">1</span>,]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_coreference</span>(obama)[<span class="op">-</span><span class="dv">1</span>,]</code></pre></div>
 <pre><code>## # A tibble: 6,984 × 12
 ##       id   rid   mid       mention mention_type   number  gender   animacy
 ##    &lt;int&gt; &lt;int&gt; &lt;int&gt;         &lt;chr&gt;        &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;

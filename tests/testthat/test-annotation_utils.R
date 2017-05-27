@@ -4,7 +4,8 @@ context("Testing annotation utility functions")
 
 data(obama)
 input_dir <- system.file("txt_files", package="cleanNLP")
-input_files <- file.path(input_dir, c("bush.txt", "clinton.txt", "obama.txt"))
+input_files <- file.path(input_dir,
+  c("bush.txt", "clinton.txt", "obama.txt"))
 
 check_spacy_exists <- function() {
   if (!requireNamespace("reticulate")) {
@@ -28,12 +29,12 @@ test_that("reset document ids", {
   sub_obama <- extract_documents(obama, ids = c(1L, 4L))
   sub_obama <- doc_id_reset(sub_obama)
 
-  expect_equal(unique(get_token(sub_obama)$id), c(0L, 1L))
-  expect_equal(unique(get_document(sub_obama)$id), c(0L, 1L))
-  expect_equal(unique(get_dependency(sub_obama)$id), c(0L, 1L))
-  expect_equal(unique(get_coreference(sub_obama)$id), c(0L, 1L))
-  expect_equal(unique(get_sentence(sub_obama)$id), c(0L, 1L))
-  expect_equal(unique(get_entity(sub_obama)$id), c(0L, 1L))
+  expect_equal(unique(get_token(sub_obama)$id), c(1L, 2L))
+  expect_equal(unique(get_document(sub_obama)$id), c(1L, 2L))
+  expect_equal(unique(get_dependency(sub_obama)$id), c(1L, 2L))
+  expect_equal(unique(get_coreference(sub_obama)$id), c(1L, 2L))
+  expect_equal(unique(get_sentence(sub_obama)$id), c(1L, 2L))
+  expect_equal(unique(get_entity(sub_obama)$id), c(1L, 2L))
 
   sub_obama <- extract_documents(obama, ids = c(1L, 4L))
   sub_obama <- doc_id_reset(sub_obama, start_id = 100L)
@@ -61,7 +62,7 @@ test_that("read and write annotations", {
   check_spacy_exists()
 
   init_spaCy(vector_flag = TRUE)
-  anno <- annotate(input_files)
+  anno <- run_annotators(input_files)
 
   od <- file.path(tempdir(), "test_dir_2")
   write_annotation(anno, od)
