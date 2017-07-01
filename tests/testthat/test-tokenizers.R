@@ -34,9 +34,9 @@ test_that("output of tokenizers", {
   expect_equal(token$sid[token$id == 2], sort(token$sid[token$id == 2]))
 
   any_missing <- apply(is.na(token), 2, any)
-  expect_true(!any(any_missing[1:4]))
+  expect_true(!any(any_missing[c(1:4,8)]))
   all_missing <- apply(is.na(token), 2, all)
-  expect_true(all(all_missing[5:8]))
+  expect_true(all(all_missing[6:7]))
 
   # check document
   doc <- get_document(anno)
@@ -63,17 +63,23 @@ test_that("run_annotators options", {
   anno <- run_annotators(c("Hi duck.", "Hi bunny.", "Hello goose."),
     as_strings = TRUE, backend = "tokenizers")
   token <- get_token(anno)
-  expect_equal(dim(token), c(6L, 8L))
+  expect_equal(dim(token), c(9L, 8L))
 
   od <- file.path(tempdir(), "test_dir")
+  od <- gsub("//", "/", od, fixed = TRUE)
   anno <- run_annotators(input_files, output_dir = od, backend = "tokenizers")
   anno2 <- read_annotation(od)
   expect_equal(anno, anno2)
 
   od <- file.path(tempdir(), "test_dir")
+  od <- gsub("//", "/", od, fixed = TRUE)
   anno <- run_annotators(input_files, output_dir = od, load = FALSE,
     backend = "tokenizers")
   od <- file.path(Sys.glob(od), "")
+
+  od <- gsub("\\", "/", sprintf("%s/", od), fixed = TRUE)
+  od <- gsub("//", "/", od, fixed = TRUE)
+  anno <- gsub("//", "/", anno, fixed = TRUE)
   expect_equal(anno, od)
 })
 

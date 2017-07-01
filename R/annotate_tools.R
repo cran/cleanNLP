@@ -542,6 +542,11 @@ print.annotation <- function(x, ...) {
 .annotate_with_r <- function(input, output_dir, doc_id_offset) {
   dir.create(output_dir, FALSE)
 
+  # SET LOCALE (reset to old value on exit)
+  old_locale <- stringi::stri_locale_get()
+  stringi::stri_locale_set(volatiles$tokenizers$locale)
+  on.exit(stringi::stri_locale_set(old_locale))
+
   # FILE HEADERS
   fp <- file.path(output_dir, "token.csv")
   writeLines("id,sid,tid,word,lemma,upos,pos,cid", fp)
@@ -555,26 +560,44 @@ print.annotation <- function(x, ...) {
     df <- dplyr::data_frame(id = id,
                      time = format(Sys.time(), fmt = "%dZ", tz = "UTC"),
                      version = as.character(utils::packageVersion("cleanNLP")),
-                     language = "n/a", uri = x)
+                     language = volatiles$tokenizers$locale,
+                     uri = x)
     readr::write_csv(df, file.path(output_dir, "document.csv"),
                       append = TRUE, na = "")
 
-    txt <- readLines(x)
-    txt <- iconv(txt, sub = "")
-    txt <- paste(txt, collapse = " ")
-    y <- tokenizers::tokenize_sentences(txt)[[1]]
-    y <- lapply(y, tokenizers::tokenize_words, lowercase = FALSE)
-    y <- lapply(y, function(v) c("ROOT", v[[1]]))
+    x <- readLines(x)
+    x <- iconv(x, sub = "")
+    x <- paste(x, collapse = " ")
 
-    sid <- mapply(function(u, v) rep(u, length(v)),
-                  seq_along(y), y, SIMPLIFY = FALSE)
-    tid <- mapply(function(u) seq_along(u) - 1L, y, SIMPLIFY = FALSE)
+    sent <- stringi::stri_split_boundaries(x, type = "sentence",
+                    skip_word_none = FALSE)
+    sent <- sent[[1]]
+    sent_len <- stringi::stri_length(sent)
+    sent_len <- cumsum(c(0, sent_len[-length(sent_len)]))
 
-    df <- dplyr::data_frame(id = id, sid = unlist(sid) - 1L,
-                     tid = unlist(tid), word = unlist(y),
-                     lemma = NA_character_, upos = NA_character_,
-                     pos = NA_character_,
-                     cid = NA_integer_)
+    cid <- stringi::stri_locate_all_boundaries(sent, type = "word",
+                    skip_word_none = FALSE)
+    cid <- lapply(cid, function(v) v[,1])
+
+    word <- stringi::stri_split_boundaries(sent, type = "word",
+                    skip_word_none = FALSE)
+    sid <- mapply(function(u, v) rep(u, length(v)), seq_along(word), word)
+    tid <- mapply(function(u) seq(length(u)), word)
+
+    cid <- unlist(cid)
+    word <- unlist(word)
+    sid <- as.numeric(unlist(sid))
+    tid <- as.numeric(unlist(tid))
+    cid <- cid + sent_len[sid]
+
+    df <- dplyr::data_frame(id = id, sid = sid, tid = tid,
+                            word = word, lemma = NA_character_,
+                            upos = NA_character_,
+                            pos = NA_character_,
+                            cid = as.integer(cid))
+
+    index <- which(!stringi::stri_detect(word, regex = "^[ ]+$"))
+    df <- df[index,]
 
     # ADD LINE TO TOKEN FILE
     readr::write_csv(df, file.path(output_dir, "token.csv"),
