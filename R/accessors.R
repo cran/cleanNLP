@@ -1,40 +1,3 @@
-#' One Table Summary of an Annotation Object
-#'
-#' This function pulls together several tables to provide
-#' a one table, denormalized version of the annotation object.
-#'
-#' @param annotation    an annotation object
-#'
-#' @author Taylor B. Arnold, \email{taylor.arnold@@acm.org}
-#' @references
-#'
-#'   Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel,
-#'   Steven J. Bethard, and David McClosky. 2014.
-#'   \href{http://nlp.stanford.edu/pubs/StanfordCoreNlp2014.pdf}{
-#'   The Stanford CoreNLP Natural Language Processing Toolkit}.
-#'   In: \emph{Proceedings of the 52nd Annual Meeting of the
-#'   Association for Computational Linguistics: System Demonstrations,
-#'   pp. 55-60.}
-#'
-#'   Kristina Toutanova and Christopher D. Manning. 2000. Enriching
-#'   the Knowledge Sources Used in a Maximum Entropy Part-of-Speech
-#'   Tagger. In: \emph{Proceedings of the Joint SIGDAT Conference on
-#'   Empirical Methods in Natural Language Processing and Very Large
-#'   Corpora (EMNLP/VLC-2000), pp. 63-70}.
-#'
-#'   Kristina Toutanova, Dan Klein, Christopher Manning, and Yoram
-#'   Singer. 2003. Feature-Rich Part-of-Speech Tagging with a Cyclic
-#'   Dependency Network. In: \emph{Proceedings of HLT-NAACL 2003,
-#'   pp. 252-259.}
-#'
-#' @export
-get_combine <- function(annotation) {
-
-  get_token(annotation, include_root = FALSE,
-            combine = TRUE, remove_na = TRUE,
-            spaces = TRUE)
-
-}
 
 #' Access tokens from an annotation object
 #'
@@ -110,12 +73,12 @@ get_combine <- function(annotation) {
 #'
 #' # find average sentence length from each address
 #' require(dplyr)
-#' get_token(obama) %>%
+#' cnlp_get_token(obama) %>%
 #'   group_by(id, sid) %>%
 #'   summarize(sentence_length = max(tid)) %>%
 #'   summarize(avg_sentence_length = mean(sentence_length))
 #' @export
-get_token <- function(annotation, include_root = FALSE,
+cnlp_get_token <- function(annotation, include_root = FALSE,
                       combine = FALSE, remove_na = combine,
                       spaces = FALSE) {
   res <- annotation$token
@@ -124,17 +87,17 @@ get_token <- function(annotation, include_root = FALSE,
   tid_target <- cid <- NULL
 
   if (combine) {
-    dep <- get_dependency(annotation)
+    dep <- cnlp_get_dependency(annotation)
     dep <- dplyr::left_join(dep,
               dplyr::select_(res, "id", "sid", "tid", "word", "lemma"),
               by = c("id", "sid", "tid"))
     dep <- dplyr::select_(dep, "id", "sid", source = "tid", tid = "tid_target",
               "relation", word_source = "word", lemma_source = "lemma")
     res <- dplyr::left_join(res, dep, by = c("id", "sid", "tid"))
-    res <- dplyr::left_join(res, get_sentence(annotation),
+    res <- dplyr::left_join(res, cnlp_get_sentence(annotation),
               by = c("id", "sid"))
     res <- dplyr::left_join(res,
-              dplyr::select_(get_entity(annotation), "-tid_end"),
+              dplyr::select_(cnlp_get_entity(annotation), "-tid_end"),
               by = c("id", "sid", "tid"))
   }
 
@@ -197,7 +160,7 @@ get_token <- function(annotation, include_root = FALSE,
 #'                         dependency type.}
 #' }
 #'
-#'  If \code{get_token} is set to true, the following columns will also be
+#'  If \code{cnlp_get_token} is set to true, the following columns will also be
 #'  included:
 #'
 #' \itemize{
@@ -245,7 +208,7 @@ get_token <- function(annotation, include_root = FALSE,
 #' # find the most common noun lemmas that are the syntactic subject of a
 #' # clause
 #' require(dplyr)
-#' res <- get_dependency(obama, get_token = TRUE) %>%
+#' res <- cnlp_get_dependency(obama, get_token = TRUE) %>%
 #'   filter(relation == "nsubj")
 #' res$lemma_target %>%
 #'   table() %>%
@@ -253,14 +216,14 @@ get_token <- function(annotation, include_root = FALSE,
 #'   head(n = 40)
 #'
 #' @export
-get_dependency <- function(annotation, get_token = FALSE) {
+cnlp_get_dependency <- function(annotation, get_token = FALSE) {
   dep <- annotation$dependency
 
   # silence R CMD check warnings
   id <- sid <- tid <- word <- lemma <- NULL
 
   if (get_token) {
-    token <- get_token(annotation, include_root = TRUE)
+    token <- cnlp_get_token(annotation, include_root = TRUE)
     dep <- dplyr::left_join(dep,
                    dplyr::select_(token, "id", "sid", "tid", "word", "lemma"),
                    by = c("id", "sid", "tid"))
@@ -315,11 +278,11 @@ get_dependency <- function(annotation, get_token = FALSE) {
 #' @examples
 #' data(obama)
 #'
-#' get_document(obama)
+#' cnlp_get_document(obama)
 #'
 #'
 #' @export
-get_document <- function(annotation) {
+cnlp_get_document <- function(annotation) {
   annotation$document
 }
 
@@ -394,15 +357,8 @@ get_document <- function(annotation) {
 #'    A Multi-Pass Sieve for Coreference Resolution.
 #'    EMNLP-2010, Boston, USA. 2010.
 #'
-#' @examples
-#' data(obama)
-#'
-#' # how often are references made to males versus female in each speech?
-#' coref <- get_coreference(obama)
-#' table(coref$gender, coref$id)
-#'
 #' @export
-get_coreference <- function(annotation) {
+cnlp_get_coreference <- function(annotation) {
   annotation$coreference
 }
 
@@ -479,11 +435,11 @@ get_coreference <- function(annotation) {
 #' data(obama)
 #'
 #' # what are the most common entity types used in the addresses?
-#' get_entity(obama)$entity_type %>%
+#' cnlp_get_entity(obama)$entity_type %>%
 #'  table()
 #'
 #' # what are the most common locations mentioned?
-#' res <- get_entity(obama) %>%
+#' res <- cnlp_get_entity(obama) %>%
 #'   filter(entity_type == "LOCATION")
 #' res$entity %>%
 #'   table() %>%
@@ -491,7 +447,7 @@ get_coreference <- function(annotation) {
 #'   head(n = 25)
 #'
 #' # what are the most common organizations mentioned?
-#' res <- get_entity(obama) %>%
+#' res <- cnlp_get_entity(obama) %>%
 #'   filter(entity_type == "ORGANIZATION")
 #' res$entity %>%
 #'   table() %>%
@@ -499,7 +455,7 @@ get_coreference <- function(annotation) {
 #'   head(n = 25)
 #'
 #' @export
-get_entity <- function(annotation) {
+cnlp_get_entity <- function(annotation) {
   annotation$entity
 }
 
@@ -538,16 +494,9 @@ get_entity <- function(annotation) {
 #'   conference on empirical methods in natural language processing
 #'   (EMNLP). Vol. 1631. 2013.
 #'
-#' @examples
-#'
-#' # how do the predicted sentiment scores change across the years?
-#' require(dplyr)
-#' get_sentence(obama) %>%
-#'   group_by(id) %>%
-#'   summarize(mean(sentiment), se = sd(sentiment) / sqrt(n()))
 #'
 #' @export
-get_sentence <- function(annotation) {
+cnlp_get_sentence <- function(annotation) {
   annotation$sentence
 }
 
@@ -571,6 +520,6 @@ get_sentence <- function(annotation) {
 #' "Glove: Global Vectors for Word Representation." EMNLP. Vol. 14. 2014.
 #'
 #' @export
-get_vector <- function(annotation) {
+cnlp_get_vector <- function(annotation) {
   annotation$vector
 }

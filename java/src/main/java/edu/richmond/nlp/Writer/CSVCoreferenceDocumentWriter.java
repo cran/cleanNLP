@@ -33,10 +33,10 @@ public class CSVCoreferenceDocumentWriter {
         for (CorefChain.CorefMention mention : chain.getMentionsInTextualOrder()) {
           int coref_representative = (mention == source) ? 1 : 0;
 
-          sb.append(String.format("%s,%d,%d,\"%s\",%s,%s,%s,%s,%d,%d,%d,%d%n", docID,
+          sb.append(String.format("doc%s,%d,%d,\"%s\",%s,%s,%s,%s,%d,%d,%d,%d%n", docID,
                     chain.getChainID(), mention.mentionID, mention.mentionSpan,
                     mention.mentionType.toString(), mention.number.toString(), mention.gender.toString(),
-                    mention.animacy.toString(), mention.sentNum - 1,
+                    mention.animacy.toString(), mention.sentNum,
                     mention.startIndex, mention.endIndex - 1, mention.headIndex));
         }
       }
