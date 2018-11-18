@@ -71,8 +71,8 @@ knitr::include_graphics("figs/num_tokens.png")
 ## ------------------------------------------------------------------------
 #  pca <- cnlp_get_token(sotu) %>%
 #    filter(pos %in% c("NN", "NNS")) %>%
-#    cnlp_get_tfidf(min_df = 0.05, max_df = 0.95, type = "tfidf", tf_weight = "dnorm") %$%
-#    cnlp__pca(tfidf, cnlp_get_document(sotu))
+#    cnlp_get_tfidf(min_df = 0.05, max_df = 0.95, type = "tfidf", tf_weight = "dnorm") %>%
+#    cnlp_pca(cnlp_get_document(sotu))
 
 ## ---- out.width = "680px", eval = TRUE, echo = FALSE---------------------
 knitr::include_graphics("figs/pca_plot.png")

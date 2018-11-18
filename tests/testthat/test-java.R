@@ -8,7 +8,7 @@ input_files <- file.path(input_dir,
 
 # Downloading the files is slow and network intensive; to test download
 # coreNLP library to this location and then the tests will run.
-lib_loc <- "~/local/core_nlp_files/stanford-corenlp-full-2016-10-31"
+lib_loc <- "~/local/core_nlp_files/stanford-corenlp-full-2018-10-05"
 
 check_corenlp_available <- function() {
   if (!requireNamespace("rJava")) {
@@ -24,15 +24,15 @@ test_that("annotation gives error if coreNLP is uninitialized", {
 
   cleanNLP:::.onLoad()
   expect_error(cnlp_annotate(input_files, backend = "coreNLP"),
-               "You must initialize corenlp with: init_corenlp_backend()")
+               "You must initialize corenlp with: cnlp_init_corenlp()")
 })
 
 test_that("initialize gives error with bad lib_location", {
   skip_on_cran()
   check_corenlp_available()
 
-  expect_error(init_coreNLP(type = "coreNLP",
-    lib_location="/file/not/exists"))
+  expect_error(cnlp_init_corenlp(type = "coreNLP",
+                                 lib_location = "/file/not/exists"))
 })
 
 test_that("coreNLP; anno_level 0", {
