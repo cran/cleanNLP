@@ -7,23 +7,40 @@
 #'
 #' @param model_name    string giving the model name for the spacy backend.
 #'                      Defaults to "en" (English) if set to NULL.
+#' @param disable       an optional vector of pipes to disable.
+#' @param max_length    amount of temporary memory provided to Spacy, in
+#'                      characters. The default of 1000000 should work for most
+#'                      applications, but can be increased when working with
+#'                      long documents.
 #'
 #' @author Taylor B. Arnold, \email{taylor.arnold@@acm.org}
 #'
 #' @examples
 #'\dontrun{
-#'cnlp_init_spacy(vector_flag = TRUE)
+#'cnlp_init_spacy(model_name = "en")
 #'}
 #'
 #' @export
-cnlp_init_spacy <- function(model_name=NULL) {
+cnlp_init_spacy <- function(model_name=NULL, disable=NULL, max_length=NULL) {
 
   check_python()
   volatiles$spacy$model_name  <- ifnull(model_name, "en")
+  volatiles$spacy$max_length  <- ifnull(model_name, 1000000)
 
-  volatiles$spacy$obj <- volatiles$cleannlp$spacy$spacyCleanNLP(
-    volatiles$spacy$model_name
-  )
+  if (is.null(disable))
+  {
+    volatiles$spacy$obj <- volatiles$cleannlp$spacy$spacyCleanNLP(
+      volatiles$spacy$model_name,
+      volatiles$spacy$max_length
+    )
+  } else {
+    volatiles$spacy$obj <- volatiles$cleannlp$spacy$spacyCleanNLP(
+      volatiles$spacy$model_name,
+      volatiles$spacy$max_length,
+      disable
+    )
+  }
+
   assert(
     !is.null(volatiles$spacy$obj$nlp),
     sprintf(
@@ -46,6 +63,28 @@ cnlp_init_spacy <- function(model_name=NULL) {
 #'                     Defaults to "english" if NULL.
 #'                     Ignored if \code{model_path} is not NULL.
 #' @param model_path   provide a full path to a model file.
+#' @param tokenizer    a character string of length 1, which is either
+#'                     'tokenizer' (default udpipe tokenisation) or a
+#'                     character string with more
+#'                     complex tokenisation options as specified in <URL:
+#'                     http://ufal.mff.cuni.cz/udpipe/users-manual> in which
+#'                     case tokenizer should be a character string where the
+#'                     options are put after each other using the semicolon as
+#'                     separation.
+#' @param tagger       a character string of length 1, which is either 'default'
+#'                     (default udpipe POS tagging and lemmatisation) or 'none' (no
+#'                     POS tagging and lemmatisation needed) or a character string
+#'                     with more complex tagging options as specified in <URL:
+#'                     http://ufal.mff.cuni.cz/udpipe/users-manual> in which case
+#'                     tagger should be a character string where the options are
+#'                     put after each other using the semicolon as separation.
+#' @param parser       a character string of length 1, which is either 'default'
+#'                     (default udpipe dependency parsing) or 'none' (no dependency
+#'                     parsing needed) or a character string with more complex
+#'                     parsing options as specified in <URL:
+#'                     http://ufal.mff.cuni.cz/udpipe/users-manual> in which case
+#'                     parser should be a character string where the options are
+#'                     put after each other using the semicolon as separation.
 #'
 #' @author Taylor B. Arnold, \email{taylor.arnold@@acm.org}
 #'
@@ -55,7 +94,13 @@ cnlp_init_spacy <- function(model_name=NULL) {
 #'}
 #'
 #' @export
-cnlp_init_udpipe <- function(model_name = NULL, model_path = NULL)
+cnlp_init_udpipe <- function(
+  model_name = NULL,
+  model_path = NULL,
+  tokenizer = "tokenizer",
+  tagger = "default",
+  parser = "default"
+)
 {
   model_name <- ifnull(model_name, "english")
   model_loc <- system.file("extdata", package="cleanNLP")
@@ -81,10 +126,12 @@ cnlp_init_udpipe <- function(model_name = NULL, model_path = NULL)
   volatiles$udpipe$model_name   <- ifnull(model_name, "english")
   volatiles$udpipe$model_path   <- model_path
   volatiles$udpipe$model_obj    <- udpipe::udpipe_load_model(model_path)
+  volatiles$udpipe$tokenizer    <- tokenizer
+  volatiles$udpipe$tagger       <- tagger
+  volatiles$udpipe$parser       <- parser
 
   volatiles$udpipe$init <- TRUE
   volatiles$model_init_last <- "udpipe"
-
 }
 
 #' Interface for initializing the standard R backend
@@ -92,24 +139,28 @@ cnlp_init_udpipe <- function(model_name = NULL, model_path = NULL)
 #' This function must be run before annotating text with
 #' the tokenizers backend.
 #'
-#' @param locale   string giving the locale name to
-#'                 pass to the stringi functions. If
-#'                 \code{NULL}, the default locale is
-#'                 selected
+#' @param locale            string giving the locale name to
+#'                          pass to the stringi functions. If
+#'                          \code{NULL}, the default locale is
+#'                          selected
+#'
+#' @param include_spaces    logical. Should spaces be included as tokens in
+#'                          the output. Defaults to FALSE
 #'
 #' @author Taylor B. Arnold, \email{taylor.arnold@@acm.org}
 #'
 #' @examples
 #'\dontrun{
-#'cnlp_init_tokenizers()
+#'cnlp_init_stringi()
 #'}
 #'
 #' @export
-cnlp_init_stringi <- function(locale = NULL) {
+cnlp_init_stringi <- function(locale=NULL, include_spaces=FALSE) {
 
-  volatiles$stringi$locale   <- ifnull(locale, stringi::stri_locale_get())
-  volatiles$stringi$init     <- TRUE
-  volatiles$model_init_last  <- "stringi"
+  volatiles$stringi$locale         <- ifnull(locale, stringi::stri_locale_get())
+  volatiles$stringi$init           <- TRUE
+  volatiles$stringi$include_spaces <- include_spaces
+  volatiles$model_init_last        <- "stringi"
 
 }
 
@@ -124,6 +175,8 @@ cnlp_init_stringi <- function(locale = NULL) {
 #'                    Defaults to "en" (English) if set to NULL.
 #' @param models_dir  directory where model files are located. Set to NULL to
 #'                    use the default.
+#' @param config      An optional named list to be converted to a Python
+#'                    dictionary.
 #'
 #'
 #' @author Taylor B. Arnold, \email{taylor.arnold@@acm.org}
@@ -134,15 +187,24 @@ cnlp_init_stringi <- function(locale = NULL) {
 #'}
 #'
 #' @export
-cnlp_init_corenlp <- function(lang=NULL, models_dir=NULL) {
+cnlp_init_corenlp <- function(lang=NULL, models_dir=NULL, config=NULL) {
 
   check_python()
+
+  assert(
+    volatiles$cleannlp$corenlp$STANFORD_AVAILABLE,
+    paste(c(
+    "The Python module 'stanfordnlp' not found. Install with:\n",
+    "  pip install stanfordnlp"
+    ))
+  )
 
   volatiles$corenlp$lang <- ifnull(lang, "en")
   volatiles$corenlp$models_dir <- ifnull(
     models_dir,
     volatiles$cleannlp$corenlp$default_model_dir()
   )
+  volatiles$corenlp$config <- reticulate::dict(config)
   assert(
     volatiles$corenlp$lang %in%
       stringi::stri_sub(dir(volatiles$corenlp$models_dir), 1, 2),
@@ -155,7 +217,8 @@ cnlp_init_corenlp <- function(lang=NULL, models_dir=NULL) {
 
   volatiles$corenlp$obj <- volatiles$cleannlp$corenlp$corenlpCleanNLP(
     volatiles$corenlp$lang,
-    volatiles$corenlp$models_dir
+    volatiles$corenlp$models_dir,
+    volatiles$corenlp$config
   )
   volatiles$corenlp$init <- TRUE
   volatiles$model_init_last <- "corenlp"
@@ -188,4 +251,13 @@ check_python <- function() {
   {
     volatiles$cleannlp <- reticulate::import("cleannlp")
   }
+
+  version_num_required <- "1.0.3"
+  assert(
+    volatiles$cleannlp$VERSION >= "1.0.3",
+    paste(c(
+      "Python module 'cleannlp' was found, but is out of date.",
+      "Upgrade with:\n  pip install -U cleannlp"
+    ), collapse=" ")
+  )
 }

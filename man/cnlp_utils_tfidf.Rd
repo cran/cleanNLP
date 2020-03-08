@@ -5,15 +5,31 @@
 \alias{cnlp_utils_tf}
 \title{Construct the TF-IDF Matrix from Annotation or Data Frame}
 \usage{
-cnlp_utils_tfidf(object, tf_weight = c("lognorm", "binary", "raw",
-  "dnorm"), idf_weight = c("idf", "smooth", "prob", "uniform"),
-  min_df = 0.1, max_df = 0.9, max_features = 10000,
-  doc_var = "doc_id", token_var = "lemma", vocabulary = NULL,
-  doc_set = NULL)
+cnlp_utils_tfidf(
+  object,
+  tf_weight = c("lognorm", "binary", "raw", "dnorm"),
+  idf_weight = c("idf", "smooth", "prob", "uniform"),
+  min_df = 0.1,
+  max_df = 0.9,
+  max_features = 10000,
+  doc_var = "doc_id",
+  token_var = "lemma",
+  vocabulary = NULL,
+  doc_set = NULL
+)
 
-cnlp_utils_tf(object, tf_weight = "raw", idf_weight = "uniform",
-  min_df = 0, max_df = 1, max_features = 10000, doc_var = "doc_id",
-  token_var = "lemma", vocabulary = NULL, doc_set = NULL)
+cnlp_utils_tf(
+  object,
+  tf_weight = "raw",
+  idf_weight = "uniform",
+  min_df = 0,
+  max_df = 1,
+  max_features = 10000,
+  doc_var = "doc_id",
+  token_var = "lemma",
+  vocabulary = NULL,
+  doc_set = NULL
+)
 }
 \arguments{
 \item{object}{a data frame containing an identifier for the document
@@ -64,8 +80,6 @@ create empty rows in the output matrix for documents
 without data in the input. Most users will want to keep
 this equal to \code{NULL}, the default, to have the
 function compute the document set automatically.}
-
-\item{...}{other arguments passed to the base method}
 }
 \value{
 a sparse matrix with dimnames giving the documents and vocabular.
