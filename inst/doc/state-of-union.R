@@ -2,7 +2,7 @@
 # CRAN will not have spaCy installed, so create static vignette
 knitr::opts_chunk$set(eval = FALSE)
 
-## ---- echo = FALSE, message=FALSE---------------------------------------------
+## ----echo = FALSE, message=FALSE----------------------------------------------
 #  library(magrittr)
 #  library(dplyr)
 #  library(ggplot2)
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #    arrange(desc(count)) %>%
 #    use_series(lemma)
 
-## ---- fig.height=6, fig.width=7-----------------------------------------------
+## ----fig.height=6, fig.width=7------------------------------------------------
 #  anno$token %>%
 #    group_by(doc_id) %>%
 #    summarize(n = n()) %>%
@@ -93,7 +93,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #  pca <- bind_cols(anno$document, pca)
 #  pca
 
-## ---- fig.height=6, fig.width=7-----------------------------------------------
+## ----fig.height=6, fig.width=7------------------------------------------------
 #  ggplot(pca, aes(PC1, PC2)) +
 #    geom_point(aes(color = cut(year, 10, dig.lab = 4)), alpha = 0.35, size = 4) +
 #    ggrepel::geom_text_repel(data = filter(pca, !duplicated(president)),
@@ -106,7 +106,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #          axis.text.y = element_blank()) +
 #    theme_void()
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  library(topicmodels)
 #  mat <- anno$token %>%
 #    filter(xpos %in% c("NN", "NNS")) %>%
@@ -114,7 +114,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #  
 #  tm <- LDA(mat, k = 16)
 
-## ---- fig.height=9, fig.width=7-----------------------------------------------
+## ----fig.height=9, fig.width=7------------------------------------------------
 #  terms <- posterior(tm)$terms
 #  topics <- posterior(tm)$topics
 #  topic_df <- tibble(topic = as.integer(col(topics)),
@@ -165,11 +165,11 @@ knitr::opts_chunk$set(eval = FALSE)
 #    mutate(y = as.numeric(president == "Barack Obama")) %>%
 #    mutate(train = year %in% seq(2001, 2016, by = 2))
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 #  library(glmnet)
 #  model <- cv.glmnet(mat[meta$train,], meta$y[meta$train], family = "binomial")
 
-## ---- fig.height=6, fig.width=7-----------------------------------------------
+## ----fig.height=6, fig.width=7------------------------------------------------
 #  meta$pred <- predict(model, newx = mat, type = "response", s = model$lambda.1se)
 #  ggplot(meta, aes(factor(year),pred)) +
 #    geom_boxplot(aes(fill = relevel(factor(president), "George W. Bush"))) +

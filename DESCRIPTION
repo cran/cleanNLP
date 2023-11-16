@@ -1,8 +1,7 @@
 Package: cleanNLP
 Type: Package
 Title: A Tidy Data Model for Natural Language Processing
-Version: 3.0.4
-Authors@R: c(person(given = "Taylor B.", family = "Arnold", email = "tarnold2@richmond.edu", role = c("aut", "cre")))
+Version: 3.0.7
 Author: Taylor B. Arnold [aut, cre]
 Maintainer: Taylor B. Arnold <tarnold2@richmond.edu>
 Description: Provides a set of fast tools for converting a textual corpus into
@@ -21,8 +20,8 @@ URL: https://statsmaths.github.io/cleanNLP/
 BugReports: https://github.com/statsmaths/cleanNLP/issues
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2022-08-12 15:09:25 UTC; taylor
+Packaged: 2023-11-16 16:31:08 UTC; admin
 Repository: CRAN
-Date/Publication: 2022-08-15 08:10:05 UTC
+Date/Publication: 2023-11-16 17:03:58 UTC

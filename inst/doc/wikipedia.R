@@ -2,7 +2,7 @@
 # CRAN will not have spaCy installed, so create static vignette
 knitr::opts_chunk$set(eval = FALSE)
 
-## ---- echo = FALSE, message=FALSE---------------------------------------------
+## ----echo = FALSE, message=FALSE----------------------------------------------
 #  library(magrittr)
 #  library(dplyr)
 #  library(ggplot2)
